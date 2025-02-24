@@ -9,7 +9,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,6 +26,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -91,6 +95,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun initializeApp() {
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -98,8 +103,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
         getCurrentLocationUser()
+
+
+        val btnMapType: FloatingActionButton = findViewById(R.id.btnMapType)
+        btnMapType.setOnClickListener { showMapTypeMenu(it) }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -167,5 +175,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
             Toast.makeText(this, "Location: ${it.latitude}, ${it.longitude}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showMapTypeMenu(view: View) {
+        val popupMenu = PopupMenu(this, view)
+        popupMenu.menuInflater.inflate(R.menu.map_type_menu, popupMenu.menu)
+
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.normal -> mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+                R.id.satellite -> mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+                R.id.terrain -> mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+                R.id.hybrid -> mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            }
+            true
+        }
+
+        popupMenu.show()
     }
 }
